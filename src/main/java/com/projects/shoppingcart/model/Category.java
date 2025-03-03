@@ -1,5 +1,6 @@
 package com.projects.shoppingcart.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,7 +8,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Category {
@@ -16,6 +16,7 @@ public class Category {
     private Long id;
     private String name;
 
+    @JsonIgnore  // Prevent infinite recursion
     @OneToMany(mappedBy = "category")
     private List<Product> products;
 

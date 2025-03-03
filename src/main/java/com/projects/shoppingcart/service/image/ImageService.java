@@ -6,7 +6,6 @@ import com.projects.shoppingcart.model.Image;
 import com.projects.shoppingcart.model.Product;
 import com.projects.shoppingcart.repository.ImageRepository;
 import com.projects.shoppingcart.service.product.IProductService;
-import com.projects.shoppingcart.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,10 +23,12 @@ public class ImageService implements IImageService{
     private final ImageRepository imageRepository;
     private final IProductService productService;
 
+    //we want to understand it
     @Override
     public List<ImageDto> saveImages(List<MultipartFile> files, Long productId) {
         Product product = productService.getProductById(productId);
         List<ImageDto> savedImageDto = new ArrayList<>();
+        String baseDownloadUrl = "api/v1/images/image/download/";
         for (MultipartFile file : files) {
             try {
                 Image image = new Image();
@@ -36,21 +37,18 @@ public class ImageService implements IImageService{
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
 
-                String buildDownloadUrl = "api/v1/images/image/download/";
-                String downloadUrl = buildDownloadUrl + image.getId();
-                image.setDownloadedUrl(downloadUrl);
+                //String buildDownloadUrl = "api/v1/images/image/download/";
+                //String downloadUrl = buildDownloadUrl + image.getId();//I think this line and the following are redundant
+                //image.setDownloadedUrl(downloadUrl);
                 Image savedImage = imageRepository.save(image);
-
-                savedImage.setDownloadedUrl(buildDownloadUrl+image.getId());
+                savedImage.setDownloadedUrl(baseDownloadUrl+image.getId());
                 imageRepository.save(savedImage);
 
                 ImageDto imageDto = new ImageDto();
-                imageDto.setImageId(savedImage.getId());
-                imageDto.setImageName(savedImage.getFileName());
+                imageDto.setId(savedImage.getId());
+                imageDto.setFileName(savedImage.getFileName());
                 imageDto.setDownloadUrl(savedImage.getDownloadedUrl());
-                savedImageDto.add(imageDto);
-
-
+                savedImageDto.add(imageDto);// a new line added after the API testing session
 
             }catch (IOException | SQLException e) {
                 throw new RuntimeException(e.getMessage());
